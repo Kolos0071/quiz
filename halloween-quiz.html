@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Хэллоуинский квиз</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik+Wet+Paint&family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09060e; --bg2:#150c1f; --panel:rgba(255,255,255,.045); --panel2:rgba(255,255,255,.08);
+  --line:rgba(255,255,255,.11); --text:#f4ece1; --muted:#a79bb3;
+  --orange:#ff7a1a; --orange2:#ffb347; --blood:#e0283f; --slime:#a6ff5c; --violet:#9b6bff;
+  --title:"Rubik Wet Paint","Rubik",system-ui,sans-serif;
+  --body:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:var(--body);overflow:hidden;
+  background-image:radial-gradient(ellipse 80% 60% at 50% 110%,#3a1408 0%,transparent 60%),
+                   radial-gradient(ellipse 60% 50% at 10% -10%,#2a1240 0%,transparent 60%),
+                   radial-gradient(ellipse 50% 40% at 100% 0%,#1d0b2c 0%,transparent 60%);}
+button{font:inherit;color:inherit;cursor:pointer}
+.fog{position:fixed;inset:-20%;pointer-events:none;opacity:.22;filter:blur(40px);
+  background:radial-gradient(circle at 20% 70%,#6b5a80 0,transparent 30%),radial-gradient(circle at 70% 80%,#4b3a5c 0,transparent 28%),radial-gradient(circle at 50% 60%,#3d2e4f 0,transparent 35%);
+  animation:fog 38s ease-in-out infinite alternate}
+.fog.b{animation-duration:52s;animation-direction:alternate-reverse;opacity:.15}
+@keyframes fog{from{transform:translateX(-6%) translateY(2%)}to{transform:translateX(6%) translateY(-3%)}}
+
+/* layout */
+#app{position:relative;height:100%;display:flex;flex-direction:column}
+#stage{flex:1;min-height:0;position:relative;padding:clamp(16px,3vw,48px) clamp(16px,4vw,64px) 12px;display:flex;flex-direction:column}
+.slide{flex:1;min-height:0;display:flex;flex-direction:column;animation:in .45s ease}
+@keyframes in{from{transform:translateY(14px) scale(.985)}to{transform:none}}
+
+footer{display:flex;align-items:center;gap:8px;padding:10px clamp(12px,3vw,40px) 14px;flex-wrap:wrap;transition:opacity .3s}
+footer.hide{opacity:0;pointer-events:none}
+footer:hover{opacity:1}
+.fbtn{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:14px;display:inline-flex;gap:8px;align-items:center;transition:background .15s,border-color .15s}
+.fbtn:hover{background:var(--panel2);border-color:rgba(255,255,255,.22)}
+.fbtn kbd{font-family:inherit;font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
+.fbtn.accent{background:linear-gradient(180deg,#ff8a2a,#e85d00);border-color:transparent;color:#1b0b00;font-weight:700}
+.fbtn.accent kbd{color:#3b1800;border-color:rgba(0,0,0,.25)}
+.fbtn[disabled]{opacity:.3;pointer-events:none}
+.spacer{flex:1}
+.prog-dots{font-size:13px;color:var(--muted);min-width:70px;text-align:center}
+
+/* chips & headings */
+.head{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:clamp(12px,2.5vh,28px)}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 14px;font-size:clamp(13px,1.1vw,16px);color:var(--muted);letter-spacing:.02em}
+.chip.hot{color:var(--orange2);border-color:rgba(255,122,26,.4);background:rgba(255,122,26,.08)}
+.chip.red{color:#ff8a98;border-color:rgba(224,40,63,.45);background:rgba(224,40,63,.1)}
+h1,h2,.display{font-family:var(--title);font-weight:400;margin:0;line-height:1.05}
+
+/* cover */
+.cover{align-items:center;justify-content:center;text-align:center;gap:18px;position:relative}
+.cover .pumpkin{font-size:clamp(70px,10vw,140px);filter:drop-shadow(0 0 40px rgba(255,122,26,.55));animation:bob 4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-10px) rotate(-3deg)}}
+.cover h1{font-size:clamp(48px,9vw,140px);color:var(--orange);text-shadow:0 0 30px rgba(255,122,26,.45),0 4px 0 #5a1d00;animation:flicker 7s infinite}
+@keyframes flicker{0%,92%,100%{opacity:1}93%{opacity:.4}94%{opacity:1}96%{opacity:.6}97%{opacity:1}}
+.cover p{font-size:clamp(18px,1.8vw,26px);color:var(--muted);margin:0}
+.cover .rounds{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px;max-width:900px}
+.bat{position:absolute;font-size:34px;opacity:.75;animation:fly 14s linear infinite;pointer-events:none}
+.bat.b2{font-size:22px;animation-duration:19s;animation-delay:-7s;top:22%!important}
+@keyframes fly{0%{left:-6%;transform:translateY(0)}25%{transform:translateY(-30px)}50%{transform:translateY(20px)}75%{transform:translateY(-20px)}100%{left:106%;transform:translateY(0)}}
+
+/* intro */
+.intro{justify-content:center;gap:clamp(14px,2.5vh,26px);max-width:1100px}
+.intro .num{font-size:clamp(20px,2vw,30px);color:var(--orange2);letter-spacing:.2em;text-transform:uppercase;font-weight:700}
+.intro h2{font-size:clamp(46px,7vw,110px);color:var(--text);text-shadow:0 0 26px rgba(155,107,255,.35)}
+.intro .rules{font-size:clamp(18px,1.9vw,28px);line-height:1.45;color:#ddd2e6;max-width:980px}
+.intro .rules p{margin:0 0 .5em}
+.meta{display:flex;gap:10px;flex-wrap:wrap}
+.meta .chip{font-size:clamp(14px,1.3vw,19px);color:var(--text)}
+
+/* question */
+.qwrap{flex:1;min-height:0;display:grid;grid-template-columns:1fr auto;gap:clamp(16px,3vw,48px);align-items:center}
+.qmain{min-height:0;display:flex;flex-direction:column;gap:clamp(12px,2vh,24px);justify-content:center}
+.qmedia{display:flex;align-items:center;gap:16px;min-height:0}
+.qmedia .emoji{font-size:clamp(54px,6vw,90px);line-height:1;filter:drop-shadow(0 0 22px rgba(255,122,26,.35))}
+.qmedia:empty{display:none}
+.qmedia img{max-height:40vh;max-width:100%;border-radius:14px;border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.qtext{font-size:clamp(22px,2.55vw,42px);line-height:1.38;font-weight:500;max-width:1250px;text-wrap:pretty}
+.qtext .hint{display:block;margin-top:.6em;font-size:.78em;color:var(--orange2);font-weight:400}
+.big-emoji{font-size:clamp(80px,13vw,200px);letter-spacing:.08em;line-height:1.1;text-align:center;filter:drop-shadow(0 0 30px rgba(155,107,255,.35))}
+.hosttools{display:flex;gap:8px;flex-wrap:wrap;opacity:.35;transition:opacity .2s}
+.hosttools:hover{opacity:1}
+.mini{background:none;border:1px dashed var(--line);border-radius:8px;padding:5px 10px;font-size:12px;color:var(--muted);text-decoration:none}
+.mini:hover{color:var(--text);border-color:rgba(255,255,255,.3)}
+
+/* answer */
+.answer{margin-top:clamp(10px,2vh,22px);border-radius:16px;padding:clamp(14px,2vh,22px) clamp(18px,2vw,28px);
+  background:linear-gradient(90deg,rgba(166,255,92,.12),rgba(166,255,92,.03));border:1px solid rgba(166,255,92,.35);
+  display:none}
+.answer.show{display:block;animation:in .4s ease}
+.answer .a{font-size:clamp(22px,2.6vw,42px);font-weight:800;color:var(--slime)}
+.answer .a::before{content:"Ответ: ";font-weight:500;color:rgba(166,255,92,.7);font-size:.65em;vertical-align:.12em}
+.answer .n{margin-top:6px;font-size:clamp(15px,1.4vw,21px);color:#cfe8bd;line-height:1.45}
+
+/* timer */
+.timer{position:relative;width:clamp(150px,17vw,250px);aspect-ratio:1;display:grid;place-items:center;cursor:pointer;user-select:none}
+.timer svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.timer circle{fill:none;stroke-width:7}
+.timer .rb{stroke:rgba(255,255,255,.08)}
+.timer .rf{stroke:var(--orange);stroke-linecap:round;transition:stroke .3s;filter:drop-shadow(0 0 8px rgba(255,122,26,.6))}
+.timer.warn .rf{stroke:var(--blood);filter:drop-shadow(0 0 10px rgba(224,40,63,.8))}
+.timer .tin{position:relative;text-align:center}
+.timer .tnum{font-size:clamp(46px,5.4vw,84px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.timer .tlab{font-size:clamp(12px,1vw,15px);color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:.14em}
+.timer.warn .tnum{color:#ff6b7d}
+.timer.done .tnum{color:var(--blood);animation:pulse .6s ease-in-out infinite}
+.timer.done{animation:shake .4s 2}
+@keyframes pulse{50%{opacity:.35}}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.tside{display:flex;flex-direction:column;align-items:center;gap:10px}
+.treset{background:none;border:none;color:var(--muted);font-size:13px}
+.treset:hover{color:var(--text)}
+
+/* logic tiles */
+.tiles{display:flex;gap:clamp(12px,2vw,28px);justify-content:center;align-items:stretch;flex-wrap:wrap}
+.tile{position:relative;width:clamp(170px,19vw,320px);aspect-ratio:1;border-radius:20px;background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;overflow:hidden;animation:in .5s ease both;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.tile .te{font-size:clamp(70px,8vw,140px);line-height:1;filter:drop-shadow(0 0 20px rgba(155,107,255,.35))}
+.tile .tc{font-size:clamp(14px,1.2vw,18px);color:var(--muted)}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tile .tup{position:absolute;right:8px;bottom:8px;z-index:2;opacity:0;transition:opacity .2s;background:rgba(0,0,0,.6)}
+.tile:hover .tup{opacity:1}
+.tile.over{border-color:var(--orange);background:rgba(255,122,26,.08)}
+.plus{font-size:clamp(28px,3vw,48px);color:var(--muted);align-self:center}
+
+/* matching picture cards */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:clamp(8px,1.2vw,16px);align-self:stretch;min-height:0}
+.pcard{position:relative;display:flex;flex-direction:column;min-height:0;border-radius:14px;overflow:hidden;background:var(--panel);border:1px solid var(--line);animation:in .45s ease both}
+.pcard.over{border-color:var(--orange);background:rgba(255,122,26,.08)}
+.pimg{flex:1;min-height:0;position:relative;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,rgba(155,107,255,.14),transparent 70%)}
+.pimg .pe{font-size:clamp(40px,5vw,84px);line-height:1;filter:drop-shadow(0 0 16px rgba(255,122,26,.3))}
+.pimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 28%}
+.pcap{display:flex;gap:10px;align-items:center;padding:8px 10px;font-size:clamp(13px,1.2vw,19px);font-weight:500;line-height:1.25;background:rgba(0,0,0,.35)}
+.pcap .k{flex:none;width:1.7em;height:1.7em;border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:.9em;background:rgba(255,122,26,.18);color:var(--orange2)}
+.pcard .ma{display:none;position:absolute;left:0;right:0;top:0;padding:6px 10px;background:rgba(10,30,5,.88);color:var(--slime);font-weight:700;font-size:clamp(13px,1.15vw,18px);z-index:2}
+.revealed .pcard .ma{display:block;animation:in .35s ease both}
+.pcard .ma .mn{display:none}
+/* с картинкой: подпись скрыта, остаётся только номер; имя появляется вместе с ответом */
+.pcard.hasimg .pcap{position:absolute;left:8px;bottom:8px;padding:0;background:none}
+.pcard.hasimg .pcap .t{display:none}
+.pcard.hasimg .pcap .k{width:2em;height:2em;font-size:clamp(15px,1.4vw,22px);background:rgba(10,6,14,.85);border:1px solid rgba(255,122,26,.5)}
+.pcard.hasimg .ma .mn{display:inline;color:#fff}
+.pcard .ptools{position:absolute;top:6px;right:6px;display:flex;gap:4px;z-index:3;opacity:0;transition:opacity .2s}
+.pcard:hover .ptools{opacity:1}
+.pcard .ptools .mini{background:rgba(0,0,0,.7);border-style:solid}
+.revealed .pcard .ptools{display:none}
+.mgrid.yn{grid-template-columns:1fr auto}
+.pgrid.g4{grid-template-columns:repeat(var(--cols,4),1fr)}
+.pcard .ma.no{color:#ff8a98;background:rgba(40,5,12,.9)}
+
+/* matching */
+.mtitle{font-size:clamp(34px,4.6vw,72px);color:var(--orange);margin-bottom:clamp(10px,2vh,20px)}
+.mgrid{flex:1;min-height:0;display:grid;grid-template-columns:1.35fr 1fr auto;gap:clamp(14px,2.5vw,40px);align-items:center}
+.mcol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:clamp(6px,1.1vh,12px)}
+.mcol li{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:clamp(8px,1.3vh,14px) 16px;font-size:clamp(17px,1.75vw,28px);font-weight:500;flex-wrap:wrap}
+.mcol .k{flex:none;width:1.7em;height:1.7em;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:.85em;background:rgba(255,122,26,.15);color:var(--orange2)}
+.mcol.r .k{background:rgba(155,107,255,.18);color:#c9b0ff}
+.mcol.r li{flex-wrap:nowrap}
+.mcol .y{color:var(--muted);font-weight:400;font-size:.8em}
+.mcol .ma{display:none;margin-left:auto;color:var(--slime);font-weight:700;font-size:.85em}
+.revealed .mcol .ma{display:inline;animation:in .35s ease both}
+
+/* audio */
+.aud{flex:1;min-height:0;display:grid;grid-template-columns:1fr auto;gap:clamp(16px,3vw,48px);align-items:center}
+.player{display:flex;flex-direction:column;align-items:center;gap:clamp(14px,2.5vh,26px)}
+.tracknum{font-family:var(--title);font-size:clamp(46px,6vw,96px);color:var(--orange)}
+.eq{display:flex;align-items:flex-end;gap:5px;height:clamp(70px,13vh,140px)}
+.eq i{display:block;width:clamp(6px,.7vw,11px);height:12%;border-radius:4px;background:linear-gradient(to top,var(--blood),var(--orange),var(--orange2));opacity:.55;transition:height .2s}
+.playing .eq i{opacity:1;animation:eq var(--d) ease-in-out infinite alternate}
+@keyframes eq{from{height:10%}to{height:var(--h)}}
+.pctrl{display:flex;gap:14px;align-items:center}
+.pbtn{width:clamp(64px,6.5vw,96px);aspect-ratio:1;border-radius:50%;border:none;background:linear-gradient(180deg,#ff8a2a,#d94f00);color:#1b0b00;font-size:clamp(26px,2.6vw,40px);box-shadow:0 0 40px rgba(255,122,26,.4);display:grid;place-items:center}
+.pbtn.sm{width:clamp(44px,4vw,58px);font-size:clamp(18px,1.6vw,24px);background:var(--panel2);color:var(--text);box-shadow:none;border:1px solid var(--line)}
+.pbar{width:min(620px,80%);height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.pbar b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--orange2))}
+.drop{border:2px dashed rgba(255,255,255,.18);border-radius:18px;padding:28px 32px;text-align:center;color:var(--muted);max-width:620px;line-height:1.5;font-size:clamp(15px,1.3vw,19px);cursor:pointer;transition:border-color .2s,background .2s}
+.drop:hover,.drop.over{border-color:var(--orange);background:rgba(255,122,26,.06);color:var(--text)}
+.drop b{color:var(--text)}
+body.dragcards .tile,body.dragcards .pcard{outline:2px dashed rgba(255,122,26,.55);outline-offset:-2px}
+body.dragging #stage::after{content:"Отпустите, чтобы прикрепить файл к этому слайду";position:absolute;inset:16px;border:3px dashed var(--orange);border-radius:24px;display:grid;place-items:center;font-size:28px;background:rgba(9,6,14,.85);z-index:5}
+
+/* answers summary */
+.alist{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:10px 18px;align-content:start;padding-right:4px}
+.arow{display:flex;gap:14px;align-items:baseline;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-size:clamp(16px,1.6vw,24px)}
+.arow .k{font-weight:800;color:var(--orange2);min-width:1.6em}
+.arow .v{color:var(--slime);font-weight:600}
+.arow .s{color:var(--muted);font-size:.8em;display:block;font-weight:400;margin-top:2px}
+.alist.hidden .v,.alist.hidden .s{filter:blur(12px)}
+.alist .v,.alist .s{transition:filter .4s}
+
+/* overlays */
+.ov{position:fixed;inset:0;background:rgba(5,3,9,.82);backdrop-filter:blur(6px);z-index:20;display:none;padding:clamp(12px,3vw,40px)}
+.ov.open{display:flex;justify-content:center;align-items:flex-start;overflow:auto}
+.panel{background:#130c1b;border:1px solid var(--line);border-radius:18px;width:min(1100px,100%);padding:clamp(16px,2.5vw,30px);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.panel h3{font-family:var(--title);font-weight:400;font-size:clamp(30px,3vw,44px);margin:0;color:var(--orange)}
+.ptop{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.tabs{display:flex;gap:6px}
+.tab{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;color:var(--muted)}
+.tab.on{background:var(--panel2);color:var(--text)}
+.mgroup{margin-bottom:16px}
+.mgroup h4{margin:0 0 8px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange2)}
+.mlinks{display:flex;flex-wrap:wrap;gap:6px}
+.mlinks button{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 11px;font-size:14px}
+.mlinks button.cur{border-color:var(--orange);color:var(--orange2)}
+.mtable{width:100%;border-collapse:collapse;font-size:14px}
+.mtable td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+.mtable .st{white-space:nowrap}
+.ok{color:var(--slime)} .miss{color:var(--muted)}
+.warnbox{font-size:13px;color:#ffb3bd;background:rgba(224,40,63,.08);border:1px solid rgba(224,40,63,.3);border-radius:10px;padding:10px 12px;margin-bottom:14px;line-height:1.45}
+
+/* scores */
+.stable{width:100%;border-collapse:collapse}
+.stable th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;text-align:center;padding:6px;font-weight:500}
+.stable th:first-child{text-align:left}
+.stable td{padding:5px;border-top:1px solid var(--line);text-align:center}
+.stable input{width:100%;min-width:52px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;padding:7px 8px;text-align:center}
+.stable input.name{text-align:left;min-width:150px}
+.stable .tot{font-weight:800;font-size:20px;color:var(--orange2);min-width:60px}
+.stable .del{background:none;border:none;color:var(--muted);font-size:18px}
+.rank{display:flex;flex-direction:column;gap:clamp(8px,1.4vh,14px);flex:1;min-height:0;overflow:auto;justify-content:center;max-width:1100px;width:100%;margin:0 auto}
+.rk{display:grid;grid-template-columns:3em minmax(120px,280px) 1fr 4em;gap:16px;align-items:center;font-size:clamp(18px,2vw,30px)}
+.rk .p{font-weight:800;color:var(--muted);text-align:right}
+.rk:nth-child(1) .p{color:#ffd166}.rk:nth-child(2) .p{color:#d9d9e3}.rk:nth-child(3) .p{color:#e09a5e}
+.rk .bar{height:clamp(14px,2.2vh,24px);border-radius:99px;background:linear-gradient(90deg,var(--blood),var(--orange));transform-origin:left;animation:grow 1s ease both}
+@keyframes grow{from{transform:scaleX(0)}}
+.rk .v{font-weight:800;text-align:right}
+.rk .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+@media (max-width:820px){
+  body{overflow:auto}
+  #app{height:auto;min-height:100%}
+  .qwrap,.aud,.mgrid{grid-template-columns:1fr}
+  .tside{order:-1}
+  .pgrid{grid-template-columns:repeat(2,1fr);grid-auto-rows:minmax(150px,auto)}
+  .pgrid.g4{grid-template-columns:repeat(2,1fr)}
+  .mgrid.yn{grid-template-columns:1fr}
+  .timer{width:140px}
+  .fbtn kbd{display:none}
+  .rk{grid-template-columns:2em 1fr 3em}.rk .bar{display:none}
+}
+</style>
+</head>
+<body>
+<div class="fog"></div><div class="fog b"></div>
+<div id="app">
+  <main id="stage"></main>
+  <footer id="foot">
+    <button class="fbtn" id="bPrev" title="Назад">‹ Назад</button>
+    <span class="prog-dots" id="pos"></span>
+    <button class="fbtn" id="bNext" title="Далее">Далее ›</button>
+    <span class="spacer"></span>
+    <button class="fbtn accent" id="bTimer">⏱ Старт <kbd>Пробел</kbd></button>
+    <button class="fbtn" id="bPlay">▶ Звук <kbd>P</kbd></button>
+    <button class="fbtn" id="bAns">👁 Ответ <kbd>Enter</kbd></button>
+    <button class="fbtn" id="bMenu">☰ Меню <kbd>M</kbd></button>
+    <button class="fbtn" id="bScore">🏆 Счёт <kbd>S</kbd></button>
+    <button class="fbtn" id="bFull" title="Полный экран (F)">⛶</button>
+  </footer>
+</div>
+
+<div class="ov" id="ovMenu"><div class="panel">
+  <div class="ptop"><h3>Меню</h3><span class="spacer"></span>
+    <div class="tabs"><button class="tab on" data-tab="slides">Слайды</button><button class="tab" data-tab="media">Медиафайлы</button></div>
+    <button class="fbtn" data-close>✕</button></div>
+  <div id="menuBody"></div>
+</div></div>
+
+<div class="ov" id="ovScore"><div class="panel">
+  <div class="ptop"><h3>Счёт</h3><span class="spacer"></span>
+    <button class="fbtn" id="addTeam">＋ Команда</button>
+    <button class="fbtn" id="resetScores">Обнулить</button>
+    <button class="fbtn" data-close>✕</button></div>
+  <div style="overflow:auto"><table class="stable" id="scoreTable"></table></div>
+</div></div>
+
+<input type="file" id="filePick" hidden>
+
+<script>
+/* =====================================================================
+   КОНТЕНТ КВИЗА — всё редактируется здесь.
+   img / src — пути к файлам рядом с этим HTML (например, audio/r3-01.mp3).
+   В Раунде 2 у таблицы можно поставить noPics: true — тогда левый столбец будет текстовым списком.
+   В Раунде 2 пара: [слева, фильм, год, эмодзи-заглушка, картинка, "contain" — показать картинку целиком].
+   Файлы также можно перетащить прямо на слайд или загрузить через Меню → Медиафайлы:
+   они сохранятся в этом браузере.
+   ===================================================================== */
+const QUIZ = {
+  title: "Хэллоуинский квиз",
+  subtitle: "Хорроры — от классики до наших дней",
+  rounds: [
+    {
+      id: 0, label: "Раунд 1", name: "Логика страха", type: "question", points: 10, timer: 60, noIcons: true,
+      rules: [
+        "Ведущий читает вопрос, затем запускает таймер — у команд <b>одна минута</b>.",
+        "Вопросы на логику: даже если не знаете ответ, его можно вычислить из подсказок.",
+        "Ответы записываются на бланк и сдаются после раунда."
+      ],
+      items: [
+        { icon: "🪓", text: "На съёмках ЭТОГО ФИЛЬМА режиссёр довёл актрису главной роли до нервного истощения и обезвоживания постоянными криками и десятками дублей. А ещё на съёмках одной сцены ушло 60 дверей за 3 дня.",
+          hint: "Назовите ЭТОТ ФИЛЬМ.",
+          answer: "«Сияние» (1980)",
+          note: "Кубрик и Шелли Дюваль. Двери разрубал топором Джек Николсон в сцене «А вот и Джонни!»." },
+        { icon: "🐦", text: "Основным источником вдохновения для ЭТОГО ФИЛЬМА стали реальные события 1961 года в калифорнийском городке Капитола: огромные стаи морских птиц начали врезаться в дома и машины и выплёвывать наполовину переваренных анчоусов.",
+          hint: "Назовите ЭТОТ ФИЛЬМ.",
+          answer: "«Птицы» Альфреда Хичкока (1963)",
+          note: "Хичкок, узнав о случае, попросил прислать ему газетную заметку. Позже учёные связали поведение птиц с отравлением токсином водорослей." },
+        { icon: "🔪", text: "Балахон убийцы из фильма «Крик» в первой версии был белым, но цензорам он не понравился: слишком напоминал балахоны _______. В итоге персонажа пришлось переодеть в чёрное.",
+          hint: "Заполните пропуск названием или известной аббревиатурой.",
+          answer: "Ку-клукс-клан (ККК)",
+          note: "" },
+        { icon: "🌌", text: "Режиссёр этого фильма ужасов утверждает, что делал акцент на клаустрофобии: главное пугающее в фильме — не монстр, а замкнутое пространство и одиночество. Это может показаться парадоксальным, ведь вокруг героев буквально бесконечность.",
+          hint: "Назовите этот фильм.",
+          answer: "«Чужой» Ридли Скотта (1979)",
+          note: "Тесные коридоры буксира «Ностромо» посреди открытого космоса. Слоган: «В космосе никто не услышит твой крик»." },
+        { icon: "🔊", text: "В фильме «Необратимость» (2002) Гаспар Ноэ использовал ЕГО в течение первых 30 минут, чтобы вызвать у зрителей тревогу, тошноту и дискомфорт. ОН может вызывать «призраков» на краю поля зрения и действовать на внутренние органы. Частота — около 19 герц и ниже.",
+          hint: "Назовите ЕГО.",
+          answer: "Инфразвук (низкочастотный гул)",
+          note: "Человек его почти не слышит, но чувствует телом. Именно частоту около 19 Гц связывают с ощущением «присутствия призрака»." },
+        { icon: "🕴️", text: "В интернете в шутку сравнивают ЭТОГО ПЕРСОНАЖА одноимённого фильма с Джеймсом Бондом: оба ДЕЛАЮТ ЭТО ровно 1,5 раза при знакомстве. Все мы иногда ДЕЛАЕМ ЭТО — как правило, в банке, в официальных или бюджетных учреждениях. Впервые это становится возможным только после того, как наши родители сходят в загс.",
+          hint: "Кого мы заменили на ЭТОГО ПЕРСОНАЖА?",
+          answer: "Джона Константина («Константин: Повелитель тьмы», 2005)",
+          note: "«Константин. Джон Константин» — как «Бонд. Джеймс Бонд»: фамилия плюс полное имя. ДЕЛАТЬ ЭТО — представляться по фамилии; фамилию нам дают, когда родители регистрируют рождение в загсе." },
+        { icon: "⏳", text: "В фильме «Человек с Земли» нестареющему Джону Олдману около 14 000 лет. Рассказывая о жизни в эпоху палеолита, он говорит, что быстро стал в племени шаманом: соплеменники считали его волшебным. Но со временем его изгнали — якобы за то, что он крадёт у племени молодость. Собеседник предполагает, что это могут быть доисторические корни мифа о НИХ.",
+          hint: "Назовите ИХ.",
+          answer: "Вампиры",
+          note: "Вечная молодость за счёт чужой жизни — главный признак вампира." },
+        { icon: "🎞️", text: "В этой кинофраншизе есть оммажи к фильмам «Пила», «Крик», «Кладбище домашних животных», «Пятница, 13-е» и многим другим. Каждый из них органично вписан в сюжет.",
+          hint: "Назовите кинофраншизу.",
+          answer: "«Очень страшное кино»",
+          note: "Пародийная франшиза с 2000 года: в каждой части высмеиваются главные хорроры своего времени." },
+        { icon: "📜", text: "В хорроре «Экзорцист Ватикана» главный герой находит дневник брата Алонсо. Тот пишет, что после проведённого экзорцизма в 1475 году сам стал одержим демоном. Через Алонсо демон проник ко двору королевы Изабеллы I и манипулировал ею. В результате это положило начало АЛЬФЕ — самой тёмной главе в истории католической церкви.",
+          hint: "Назовите двумя словами на одну и ту же букву, что мы заменили на АЛЬФУ.",
+          answer: "Испанская инквизиция",
+          note: "Изабелла I Кастильская и Фердинанд учредили её в 1478 году." },
+        { icon: "🍌", text: "В мультфильме «Миньоны» маленькие бессмертные жёлтые человечки на протяжении всей истории служат самым жутким злодеям. Но после неприятного казуса с Наполеоном им приходится бежать в ледяную пустыню и надолго спрятаться от мира.",
+          hint: "Зрители полагают, что этот сценарный ход сделан специально, чтобы в детском комедийном мультике не появился… кто?",
+          answer: "Гитлер",
+          note: "Миньоны «пропускают» XX век и возвращаются к злодеям только в 1960-х." }
+      ]
+    },
+    {
+      id: 1, label: "Раунд 2", name: "Кто откуда", type: "matching", points: 2, pointsLabel: "2 балла за пару", timer: 35,
+      rules: [
+        "Пять таблиц по шесть пар. Соедините левый столбец с правым: запишите на бланк «1-В, 2-А…».",
+        "На каждую таблицу — <b>35 секунд</b>.",
+        "<b>2 балла</b> за каждую верную пару, до 60 баллов за раунд."
+      ],
+      items: [
+        { title: "Злодей → фильм", icon: "🔪", pairs: [
+          ["Кожаное лицо", "Техасская резня бензопилой", "1974", "🪚", "img/leatherface.jpg"],
+          ["Крипер", "Джиперс Криперс", "2001", "🦇", "img/creeper.jpg"],
+          ["Бабушка Глэдис", "Легион", "2010", "👵", "img/legion-gladys.jpg"],
+          ["Нечто", "Нечто", "1982", "🧊", "img/thing.jpg"],
+          ["Брандл-муха", "Муха", "1986", "🧪", "img/fly-brundle.jpg"],
+          ["Невеста в чёрном", "Астрал", "2010", "👰", "img/insidious-bride.webp"] ] },
+        { title: "Предмет → фильм", icon: "🗝️", pairs: [
+          ["Капсула-телепорт", "Муха", "1986", "⚡", "img/fly-telepod.jpg"],
+          ["Игрушечный клоун под кроватью", "Полтергейст", "1982", "🤡", "img/poltergeist-clown.jpg"],
+          ["Кукла Аннабель", "Заклятие", "2013", "🪆", "img/annabelle.jpg"],
+          ["Перчатка с лезвиями", "Кошмар на улице Вязов", "1984", "🧤", "img/freddy-glove.jpg", "contain"],
+          ["Забальзамированная рука", "Два, три, демон, приди!", "2022", "✋", "img/talk-to-me-hand.jpg"],
+          ["Шкатулка-головоломка", "Восставший из ада", "1987", "📦", "img/hellraiser-box.jpg", "contain"] ] },
+        { title: "Цитата → фильм", icon: "💬", noPics: true, pairs: [
+          ["«Я вижу мёртвых людей»", "Шестое чувство", "1999", "👻"],
+          ["«Нам понадобится лодка побольше»", "Челюсти", "1975"],
+          ["«Когда в аду не останется места, мёртвые пойдут по земле»", "Рассвет мертвецов", "1978", "🧟"],
+          ["«Ты — мой личный сорт героина»", "Сумерки", "2008"],
+          ["«Кого ты позовёшь?»", "Охотники за привидениями", "1984"],
+          ["«Правило номер один: кардио»", "Добро пожаловать в Zомбилэнд", "2009", "🏃"] ] },
+        { title: "Место действия → фильм", icon: "🗺️", pairs: [
+          ["Дом 1428 на улице Вязов", "Кошмар на улице Вязов", "1984", "🏠", "img/elm-street-house.jpg"],
+          ["Дом-монстр", "Дом-монстр", "2006", "🏚️", "img/monster-house.jpg"],
+          ["Ранчо Неверленд", "Покидая Неверленд", "2019", "🎡", "img/neverland.jpg"],
+          ["Отель «Стэнли» — прообраз «Оверлука»", "Сияние", "1980", "🏨", "img/stanley-hotel.jpg"],
+          ["Дом на Нейболт-стрит", "Оно", "2017", "🏚️", "img/neibolt-house.jpg"],
+          ["Дом 112 на Оушен-авеню", "Ужас Амитивилля", "2005", "🏡", "img/amityville-house.jpg"] ] },
+        { title: "Героиня → фильм", icon: "🎭", pairs: [
+          ["Чарли Макги", "Воспламеняющая взглядом", "1984", "🔥", "img/firestarter.jpg"],
+          ["Грейс Стюарт", "Другие", "2001", "🕯️", "img/the-others.jpg"],
+          ["Клодия", "Интервью с вампиром", "1994", "🧛", "img/interview-vampire.jpg"],
+          ["Энни Уилкс", "Мизери", "1990", "🔨", "img/misery.jpg"],
+          ["Уэнсдей Аддамс", "Семейка Аддамс", "1991", "🖤", "img/addams-family.jpg"],
+          ["Ньют", "Чужие", "1986", "👧", "img/aliens.jpg"] ] }
+      ]
+    },
+    {
+      id: 7, label: "Раунд 2.5", name: "Был ли Дракулой?", type: "yesno", points: 1, pointsLabel: "1 балл за фото", timer: 60,
+      rules: [
+        "На экране десять актёров. Кто из них хоть раз играл графа Дракулу?",
+        "Запишите на бланк для каждого номера: <b>«Да»</b> или <b>«Нет»</b>. На всё — <b>одна минута</b>.",
+        "<b>1 балл</b> за каждый верный ответ."
+      ],
+      items: [
+        { title: "Играл ли он Дракулу?", cards: [
+          { img: "img/dracula-1.webp", name: "", yes: true, note: "" },
+          { img: "img/dracula-2.webp", name: "", yes: true, note: "" },
+          { img: "img/dracula-3.jpg", name: "", yes: true, note: "" },
+          { img: "img/dracula-4.jpg", name: "", yes: false, note: "" },
+          { img: "img/dracula-5.webp", name: "", yes: false, note: "" },
+          { img: "img/dracula-6.jpg", name: "", yes: false, note: "" },
+          { img: "img/dracula-7.jpg", name: "", yes: true, note: "" },
+          { img: "img/dracula-8.jpg", name: "", yes: false, note: "" },
+          { img: "img/dracula-9.jpg", name: "", yes: true, note: "" },
+          { img: "img/dracula-10.webp", name: "", yes: true, note: "" }
+        ] }
+      ]
+    },
+    {
+      id: 2, label: "Раунд 3", name: "Звуки страха", type: "audio", points: 5, timer: 30,
+      rules: [
+        "Звучит знаменитая музыкальная тема. Назовите <b>фильм или сериал</b>.",
+        "После фрагмента — <b>30 секунд</b> на запись ответа.",
+        "<b>5 баллов</b> за каждый верный ответ. В конце — бонусный вопрос без записи."
+      ],
+      items: [
+        { src: "audio/r3-01-jaws.mp3", start: 0, duration: 30, search: "Jaws theme John Williams",
+          answer: "«Челюсти» (1975)", note: "Джон Уильямс. Тема из двух нот — ми и фа." },
+        { src: "audio/r3-02-supernatural.mp3", start: 0, duration: 30, search: "Supernatural theme",
+          answer: "«Сверхъестественное» (сериал, 2005–2020)", note: "15 сезонов о братьях Винчестерах — охотниках на нечисть." },
+        { src: "audio/r3-03-van-helsing.mp3", start: 0, duration: 30, search: "Van Helsing Journey to Transylvania Alan Silvestri",
+          answer: "«Ван Хельсинг» (2004)", note: "Алан Сильвестри, «Journey to Transylvania». Хью Джекман против Дракулы." },
+        { src: "audio/r3-04-saw.mp3", start: 0, duration: 30, search: "Saw Hello Zepp Charlie Clouser",
+          answer: "«Пила» (2004)", note: "Чарли Клаузер, «Hello Zepp»." },
+        { src: "audio/r3-05-twilight.mp3", start: 0, duration: 30, search: "Twilight 2008 soundtrack",
+          answer: "«Сумерки» (2008)", note: "Белла Свон и вампир Эдвард Каллен." },
+        { src: "audio/r3-06-psycho.mp3", start: 0, duration: 30, search: "Psycho shower scene music Bernard Herrmann The Murder",
+          answer: "«Психо» (1960)", note: "Бернард Херрманн, «The Murder» — визг скрипок в сцене в душе." },
+        { src: "audio/r3-07-walking-dead.mp3", start: 0, duration: 30, search: "The Walking Dead theme Bear McCreary",
+          answer: "«Ходячие мертвецы» (сериал, 2010–2022)", note: "Главная тема Беара Маккрири." },
+        { src: "audio/r3-08-dusk-till-dawn.mp3", start: 0, duration: 30, search: "From Dusk Till Dawn soundtrack",
+          answer: "«От заката до рассвета» (1996)", note: "Режиссёр Роберт Родригес, сценарий Квентина Тарантино." },
+        { src: "audio/r3-09-terminator.mp3", start: 0, duration: 30, search: "The Terminator theme Brad Fiedel",
+          answer: "«Терминатор» (1984)", note: "Брэд Фидел. Тот самый «железный» ритм." },
+        { src: "audio/r3-10-last-of-us.mp3", start: 0, duration: 30, search: "The Last of Us Gustavo Santaolalla",
+          answer: "«Одни из нас» (The Last of Us)", note: "Густаво Сантаолалья — музыка игры 2013 года и сериала HBO 2023 года." },
+        { icon: "🎤", points: 5, text: "«Хоа-хоа-хоа-хоа-хоаааааа!»",
+          hint: "Ведущий исполняет вживую. Откуда это?",
+          answer: "«Сумерки» (2008)", note: "" }
+      ]
+    },
+    {
+      id: 3, label: "Раунд 4", name: "Слушай темноту", type: "audio", points: 5, timer: 30,
+      rules: [
+        "Только звук — никакой картинки. Звучит фрагмент сцены или реплика героя.",
+        "Назовите <b>фильм</b>. После фрагмента — <b>30 секунд</b>.",
+        "<b>5 баллов</b> за каждый верный ответ."
+      ],
+      items: [
+        { src: "audio/r4-01.mp3", start: 0, duration: 0, search: "Frankenstein 1931 It's alive scene",
+          answer: "«Франкенштейн» (1931)", note: "«Оно живое! Оно живое!» — Колин Клайв в роли доктора Генри Франкенштейна." },
+        { src: "audio/r4-02.mp3", start: 0, duration: 0, search: "Dracula 1931 children of the night what music they make",
+          answer: "«Дракула» (1931)", note: "«Дети ночи… какую музыку они создают!» — Бела Лугоши." },
+        { src: "audio/r4-03.mp3", start: 0, duration: 0, search: "Night of the Living Dead They're coming to get you Barbara",
+          answer: "«Ночь живых мертвецов» (1968)", note: "«Они идут за тобой, Барбара!» — Джордж Ромеро." },
+        { src: "audio/r4-04.mp3", start: 0, duration: 0, search: "The Birds 1963 attack scene",
+          answer: "«Птицы» (1963)", note: "Крики птиц Хичкок сделал электронными — на траутониуме." },
+        { src: "audio/r4-05.mp3", start: 0, duration: 0, search: "Carrie 1976 they're all gonna laugh at you",
+          answer: "«Кэрри» (1976)", note: "«Они все будут смеяться над тобой!» — голос матери в голове Кэрри." },
+        { src: "audio/r4-06.mp3", start: 0, duration: 0, search: "The Shining Here's Johnny scene",
+          answer: "«Сияние» (1980)", note: "«А вот и Джонни!» — Николсон сымпровизировал, это фраза из шоу Джонни Карсона." },
+        { src: "audio/r4-07.mp3", start: 0, duration: 0, search: "Silence of the Lambs fava beans chianti",
+          answer: "«Молчание ягнят» (1991)", note: "«…с бобами фава и хорошим кьянти». Хопкинс почти не моргает в кадре — нарочно." },
+        { src: "audio/r4-08.mp3", start: 0, duration: 0, search: "Blair Witch Project Heather apology scene",
+          answer: "«Ведьма из Блэр» (1999)", note: "Знаменитый монолог Хизер с фонариком." },
+        { src: "audio/r4-09.mp3", start: 0, duration: 0, search: "The Ring 2002 seven days phone",
+          answer: "«Звонок» (2002)", note: "«Семь дней». Ремейк японского «Звонка» 1998 года." },
+        { src: "audio/r4-10.mp3", start: 0, duration: 0, search: "Poltergeist They're here scene",
+          answer: "«Полтергейст» (1982)", note: "«Они уже здесь» — Кэрол Энн у телевизора." }
+      ]
+    },
+    {
+      id: 4, label: "Раунд 5", name: "Где логика?", type: "logic", points: 5, timer: 30,
+      rules: [
+        "На экране несколько картинок. Все они связаны с одним злодеем.",
+        "Назовите <b>злодея или фильм</b>. На ответ — <b>30 секунд</b>.",
+        "<b>5 баллов</b> за верный ответ."
+      ],
+      items: [
+        { tiles: [{ e: "🔪", c: "Лезвия" }, { e: "😴", c: "Сон" }, { e: "🏡", c: "Улица с деревьями" }],
+          answer: "Фредди Крюгер — «Кошмар на улице Вязов»", note: "Убивает во сне. Перчатка с лезвиями, улица Вязов." },
+        { tiles: [{ e: "✝️", c: "Перевёрнутый крест", rot: 180 }, { e: "👧", c: "Девочка" }, { e: "🛏️", c: "Кровать" }],
+          answer: "Демон Пазузу — «Изгоняющий дьявола»", note: "Одержимая девочка Риган и её кровать, которая трясётся сама." },
+        { tiles: [{ e: "🎈", c: "Шарик" }, { e: "⛵", c: "Бумажный кораблик" }, { e: "🌧️", c: "Дождь" }],
+          answer: "Пеннивайз — «Оно»", note: "Джорджи пускает кораблик по дождевому стоку." },
+        { tiles: [{ e: "🏕️", c: "Лагерь" }, { e: "🌊", c: "Озеро" }, { e: "🗡️", c: "Мачете" }],
+          answer: "Джейсон Вурхиз — «Пятница, 13-е»", note: "Лагерь «Хрустальное озеро»." },
+        { tiles: [{ e: "🐷", c: "Маска свиньи" }, { e: "🚲", c: "Велосипед" }, { e: "📼", c: "Кассета" }],
+          answer: "Конструктор (Джон Крамер) — «Пила»", note: "Кукла Билли на трёхколёсном велосипеде и кассеты «Я хочу сыграть с тобой в игру»." },
+        { tiles: [{ e: "🧸", c: "Игрушка" }, { e: "⚡", c: "Молния" }, { e: "👦", c: "Мальчик" }],
+          answer: "Чаки — «Детские игры»", note: "Душа маньяка переселяется в куклу во время грозы; хозяин куклы — мальчик Энди." },
+        { tiles: [{ e: "🍷", c: "Вино" }, { e: "🫘", c: "Бобы" }, { e: "😷", c: "Маска" }],
+          answer: "Ганнибал Лектер — «Молчание ягнят»", note: "Бобы фава, кьянти и намордник." },
+        { tiles: [{ e: "🎃", c: "Тыква" }, { e: "🔪", c: "Кухонный нож" }, { e: "👕", c: "Комбинезон" }],
+          answer: "Майкл Майерс — «Хэллоуин»", note: "Белая маска, синий комбинезон, ночь на 31 октября." },
+        { tiles: [{ e: "📞", c: "Телефон" }, { e: "🎬", c: "Кино" }, { e: "😱", c: "Крик" }],
+          answer: "Призрачное лицо (Гоустфейс) — «Крик»", note: "Звонит жертвам и спрашивает про любимый фильм ужасов. Маска похожа на «Крик» Мунка." },
+        { tiles: [{ e: "📦", c: "Шкатулка" }, { e: "📌", c: "Гвозди" }, { e: "⛓️", c: "Цепи с крюками" }],
+          answer: "Пинхед — «Восставший из ада»", note: "Шкатулка-головоломка открывает дверь сенобитам." }
+      ]
+    },
+    {
+      id: 5, label: "Раунд 6", name: "Ближе всех", type: "question", points: 10, pointsLabel: "10 баллов ближайшей команде", timer: 30,
+      rules: [
+        "Ответ на каждый вопрос — <b>число</b>. Угадать точно почти невозможно, нужно назвать как можно ближе.",
+        "На ответ — <b>30 секунд</b>.",
+        "<b>10 баллов</b> команде, чей ответ ближе всех. Точное попадание — <b>ещё +5</b>."
+      ],
+      items: [
+        { icon: "🪓", text: "Знаменитую сцену «А вот и Джонни!» из «Сияния» снимали три дня. Сколько дверей за это время разрубил топором Джек Николсон?",
+          answer: "Около 60 дверей", note: "Первую дверь Николсон, бывший пожарный-доброволец, разнёс слишком быстро — пришлось делать её прочнее." },
+        { icon: "🏏", text: "Кубрик был известен любовью к дублям. Сцену, где Шелли Дюваль отбивается бейсбольной битой от Николсона, сняли рекордное число раз. Сколько было дублей?",
+          answer: "127 дублей", note: "Рекорд Книги Гиннесса для сцены с диалогом." },
+        { icon: "🚿", text: "Сцена в душе в «Психо» длится около трёх минут. Сколько съёмочных дней на неё ушло?",
+          answer: "7 дней", note: "Около 78 положений камеры и 52 монтажные склейки." },
+        { icon: "🦈", text: "Съёмки «Челюстей» запланировали на 55 дней. Механическая акула ломалась, погода мешала. Сколько дней в итоге длились съёмки?",
+          answer: "159 дней", note: "Почти втрое дольше плана — и бюджет вырос примерно в два раза." },
+        { icon: "🪚", text: "Первую «Пилу» (2004) снимали в режиме жёсткой экономии. За сколько дней сняли фильм?",
+          answer: "18 дней", note: "Бюджет — около 1,2 млн долларов, сборы — больше 100 млн." },
+        { icon: "🎥", text: "«Паранормальное явление» сняли в доме режиссёра на одну камеру. Каким был изначальный бюджет фильма в долларах?",
+          answer: "Около 15 000 $", note: "Мировые сборы — почти 200 млн. Одна из самых прибыльных картин в истории." },
+        { icon: "🌲", text: "«Ведьма из Блэр» стоила копейки. Сколько миллионов долларов фильм собрал в мировом прокате?",
+          answer: "Около 248 млн $", note: "При бюджете около 60 тысяч на съёмки." },
+        { icon: "🍷", text: "Энтони Хопкинс получил «Оскар» за лучшую мужскую роль в «Молчании ягнят». Сколько минут он находится в кадре в фильме, который идёт почти два часа?",
+          answer: "Около 16 минут", note: "Одна из самых коротких ролей, получивших главный «Оскар»." },
+        { icon: "🪞", text: "Сколько раз нужно произнести имя перед зеркалом, чтобы вызвать Кэндимена?",
+          answer: "5 раз", note: "«Кэндимен» (1992)." },
+        { icon: "💵", text: "Первый «Хэллоуин» (1978) Джона Карпентера — один из самых прибыльных независимых фильмов. Каким был его бюджет в долларах?",
+          answer: "Около 325 000 $", note: "По разным данным, от 300 до 325 тысяч. Сборы — десятки миллионов." }
+      ]
+    },
+    {
+      id: 6, label: "Финал", name: "Последняя ставка", type: "question", final: true, points: "ставка", pointsLabel: "Ставка 0–30", timer: 60,
+      rules: [
+        "Каждая команда тайно пишет ставку — от <b>0 до 30</b> баллов из уже набранных.",
+        "Затем звучит последний вопрос. <b>Одна минута</b>.",
+        "Верно — ставка прибавляется. Неверно — вычитается."
+      ],
+      items: [
+        { icon: "🏆", text: "Только три фильма в истории получили «Большую пятёрку» «Оскара»: лучший фильм, режиссёр, актёр, актриса и сценарий. Один из них — фильм ужасов, вышедший в 1991 году.",
+          hint: "Назовите этот фильм.",
+          answer: "«Молчание ягнят»",
+          note: "Двое других — «Это случилось однажды ночью» (1934) и «Пролетая над гнездом кукушки» (1975)." }
+      ]
+    }
+  ]
+};
+</script>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const LETTERS = "АБВГДЕЖЗ";
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+/* ---------- IndexedDB для загруженных медиафайлов ---------- */
+const DB = (() => {
+  let p;
+  const open = () => p || (p = new Promise((res, rej) => {
+    const r = indexedDB.open("halloween-quiz", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("media");
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  const run = (mode, fn) => open().then(db => new Promise((res, rej) => {
+    const q = fn(db.transaction("media", mode).objectStore("media"));
+    q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
+  })).catch(() => null);
+  return {
+    get: k => run("readonly", s => s.get(k)),
+    set: (k, v) => run("readwrite", s => s.put(v, k)),
+    del: k => run("readwrite", s => s.delete(k)),
+    keys: () => run("readonly", s => s.getAllKeys()).then(k => k || [])
+  };
+})();
+const urlCache = new Map();
+async function mediaURL(key) {
+  if (urlCache.has(key)) return urlCache.get(key);
+  const blob = await DB.get(key);
+  if (!blob) return null;
+  const u = URL.createObjectURL(blob);
+  urlCache.set(key, u);
+  return u;
+}
+async function saveMedia(key, file) {
+  if (urlCache.has(key)) { URL.revokeObjectURL(urlCache.get(key)); urlCache.delete(key); }
+  await DB.set(key, file);
+}
+async function removeMedia(key) {
+  if (urlCache.has(key)) { URL.revokeObjectURL(urlCache.get(key)); urlCache.delete(key); }
+  await DB.del(key);
+}
+const rid = ri => QUIZ.rounds[ri].id ?? ri;
+const mkey = (ri, qi) => `r${rid(ri)}-q${qi}`;
+const imgSearch = q => `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q)}`;
+
+/* ---------- Звуковые эффекты (синтез, без файлов) ---------- */
+const Sfx = (() => {
+  let ctx;
+  const ac = () => { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === "suspended") ctx.resume(); return ctx; };
+  function tone(f, dur, type = "sine", vol = .2, when = 0, lp = 0) {
+    try {
+      const c = ac(), o = c.createOscillator(), g = c.createGain(), t = c.currentTime + when;
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      let node = o;
+      if (lp) { const fl = c.createBiquadFilter(); fl.type = "lowpass"; fl.frequency.value = lp; o.connect(fl); node = fl; }
+      node.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + .05);
+    } catch (e) {}
+  }
+  // глухой удар: низкий синус с быстрым падением высоты
+  function thump(when, vol) {
+    try {
+      const c = ac(), o = c.createOscillator(), g = c.createGain(), t = c.currentTime + when;
+      o.type = "sine"; o.frequency.setValueAtTime(95, t); o.frequency.exponentialRampToValueAtTime(42, t + .14);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + .22);
+      o.connect(g).connect(c.destination); o.start(t); o.stop(t + .25);
+    } catch (e) {}
+  }
+  return {
+    beat(vol = .55) { thump(0, vol); thump(.2, vol * .7); },
+    start() { tone(55, 1.2, "sine", .4); tone(110, .5, "triangle", .08); },
+    tick() { tone(1500, .07, "square", .05, 0, 4000); },
+    end() { [98, 103.8, 146.8, 155.6, 196].forEach((f, i) => tone(f, 3.2, "sawtooth", .06, i * .04, 900)); tone(41, 3.5, "sine", .45); }
+  };
+})();
+
+/* ---------- Таймер ---------- */
+const CIRC = 2 * Math.PI * 54;
+const Timer = {
+  el: null, total: 0, left: 0, running: false, end: 0, raf: 0,
+  html: () => `<div class="tside"><div class="timer" id="timer"><svg viewBox="0 0 120 120"><circle class="rb" cx="60" cy="60" r="54"/><circle class="rf" cx="60" cy="60" r="54" stroke-dasharray="${CIRC}" stroke-dashoffset="0"/></svg><div class="tin"><div class="tnum">0</div><div class="tlab">старт</div></div></div><button class="treset" id="treset">↺ сбросить <span style="opacity:.6">(R)</span></button></div>`,
+  mount(secs) {
+    this.stop(); this.el = $("#timer"); this.total = secs; this.left = secs;
+    this.el.onclick = () => this.toggle();
+    $("#treset").onclick = () => this.reset();
+    this.draw();
+  },
+  toggle() { if (!this.el) return; if (this.left <= 0) return this.reset(); this.running ? this.pause() : this.start(); },
+  start() { this.running = true; this.end = performance.now() + this.left * 1000; this.nextBeat = performance.now() + 700; Sfx.start(); this.loop(); },
+  // сердце бьётся всё чаще: ~60 уд/мин, с 10 секунд ~100, с 5 секунд ~140
+  beatGap() { return this.left <= 5 ? 430 : this.left <= 10 ? 600 : 1000; },
+  loop() {
+    const prev = Math.ceil(this.left);
+    this.left = Math.max(0, (this.end - performance.now()) / 1000);
+    const sec = Math.ceil(this.left);
+    if (sec !== prev && sec <= 5 && sec > 0) Sfx.tick();
+    const now = performance.now();
+    if (this.left > 0 && now >= this.nextBeat) { Sfx.beat(this.left <= 10 ? .7 : .55); this.nextBeat = now + this.beatGap(); }
+    this.draw();
+    if (this.left <= 0) { this.running = false; Sfx.end(); this.draw(); return; }
+    this.raf = requestAnimationFrame(() => this.loop());
+  },
+  pause() { this.running = false; cancelAnimationFrame(this.raf); this.draw(); },
+  reset() { this.pause(); this.left = this.total; this.draw(); },
+  stop() { cancelAnimationFrame(this.raf); this.running = false; this.el = null; updateFooter(); },
+  draw() {
+    if (!this.el) return;
+    const s = Math.ceil(this.left);
+    $(".tnum", this.el).textContent = s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}` : s;
+    $(".rf", this.el).setAttribute("stroke-dashoffset", CIRC * (1 - this.left / this.total));
+    $(".tlab", this.el).textContent = this.left <= 0 ? "время!" : this.running ? "идёт" : this.left < this.total ? "пауза" : "старт";
+    this.el.classList.toggle("warn", this.left <= 10 && this.left > 0);
+    this.el.classList.toggle("done", this.left <= 0);
+    updateFooter();
+  }
+};
+
+/* ---------- Аудиоплеер ---------- */
+const player = new Audio();
+player.preload = "auto";
+let curAudio = null; // {q, ok}
+function stopAudio() { player.pause(); player.removeAttribute("src"); player.load(); curAudio = null; }
+function playToggle() {
+  if (!curAudio || !curAudio.ok) return;
+  const q = curAudio.q, st = q.start || 0, end = q.duration ? st + q.duration : Infinity;
+  if (!player.paused) { player.pause(); return; }
+  if (player.ended || player.currentTime < st || player.currentTime >= end - .05) player.currentTime = st;
+  player.volume = 1;
+  player.play().catch(() => {});
+}
+function restartAudio() { if (!curAudio || !curAudio.ok) return; player.currentTime = curAudio.q.start || 0; player.volume = 1; player.play().catch(() => {}); }
+player.addEventListener("timeupdate", () => {
+  if (!curAudio) return;
+  const q = curAudio.q, st = q.start || 0, full = (player.duration || 0) - st;
+  const dur = q.duration ? Math.min(q.duration, full || q.duration) : full;
+  if (q.duration) {
+    // плавно гасим звук за 1,5 секунды до конца фрагмента
+    const rem = st + q.duration - player.currentTime;
+    player.volume = rem < 1.5 ? Math.max(0, rem / 1.5) : 1;
+    if (rem <= 0) player.pause();
+  }
+  const b = $(".pbar b"); if (b && dur > 0) b.style.width = Math.min(100, (player.currentTime - st) / dur * 100) + "%";
+});
+["play", "pause", "ended"].forEach(ev => player.addEventListener(ev, () => {
+  const p = $(".player"); if (p) p.classList.toggle("playing", !player.paused);
+  const b = $("#pplay"); if (b) b.textContent = player.paused ? "▶" : "❚❚";
+  updateFooter();
+}));
+
+/* ---------- Слайды ---------- */
+const slides = [];
+slides.push({ kind: "cover", title: "Обложка" });
+QUIZ.rounds.forEach((r, ri) => {
+  slides.push({ kind: "intro", ri, title: `${r.label}: правила` });
+  r.items.forEach((q, qi) => slides.push({ kind: q.text && r.type !== "question" ? "question" : r.type, ri, qi, title: r.type === "matching" ? q.title : (r.final ? "Вопрос" : `${qi + 1}`) }));
+  if (r.items.length > 1) slides.push({ kind: "answers", ri, title: "Ответы" });
+});
+slides.push({ kind: "scores", title: "Итоги" });
+
+const state = { i: Math.min(store.get("hq-pos", 0), slides.length - 1), shown: {} };
+const stage = $("#stage");
+const hasTimer = s => ["question", "matching", "audio", "emoji", "logic", "yesno"].includes(s.kind);
+const hasAnswer = s => hasTimer(s) || s.kind === "answers";
+
+function rng(seed) { return () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function matchOrder(ri, qi, n) {
+  const r = rng(1000 + ri * 37 + qi * 101); let a;
+  do { a = [...Array(n).keys()]; for (let i = n - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } } while (a.some((v, i) => v === i));
+  return a;
+}
+const ptsLabel = (r, q) => { const p = q && q.points != null ? q.points : r.points; return (q && q.points != null ? "" : r.pointsLabel) || `${p} ${plural(p, "балл", "балла", "баллов")}`; };
+function plural(n, a, b, c) { n = Math.abs(n) % 100; const n1 = n % 10; if (n > 10 && n < 20) return c; if (n1 > 1 && n1 < 5) return b; if (n1 === 1) return a; return c; }
+function head(r, s, extra = "") {
+  const total = r.items.length, q = r.items[s.qi];
+  const what = r.type === "yesno" ? `${q.cards.length} фото` : q && q.text && r.type !== "question" ? "Бонусный вопрос" : r.type === "matching" ? `Таблица ${s.qi + 1}/${total}` : r.type === "audio" ? `Трек ${s.qi + 1}/${total}` : r.final ? "Финальный вопрос" : `Вопрос ${s.qi + 1}/${total}`;
+  return `<div class="head"><span class="chip hot">${esc(r.label)} · ${esc(r.name)}</span><span class="chip">${what}</span><span class="chip ${r.final ? "red" : ""}">${esc(ptsLabel(r, q))}</span>${extra}</div>`;
+}
+const answerBox = q => `<div class="answer ${state.shown[state.i] ? "show" : ""}" id="ans"><div class="a">${q.answer ? esc(q.answer) : "<span style='color:#ff8a98'>ответ не задан</span>"}</div>${q.note ? `<div class="n">${esc(q.note)}</div>` : ""}</div>`;
+
+const R = {
+  cover() {
+    stage.innerHTML = `<div class="slide cover">
+      <span class="bat" style="top:12%">🦇</span><span class="bat b2">🦇</span>
+      <div class="pumpkin">🎃</div>
+      <h1>${esc(QUIZ.title)}</h1>
+      <p>${esc(QUIZ.subtitle)}</p>
+      <div class="rounds">${QUIZ.rounds.map(r => `<span class="chip">${esc(r.label)} · ${esc(r.name)}</span>`).join("")}</div>
+      <p style="font-size:15px;margin-top:22px;opacity:.7">→ далее &nbsp;·&nbsp; Пробел — таймер &nbsp;·&nbsp; Enter — ответ &nbsp;·&nbsp; P — звук &nbsp;·&nbsp; M — меню &nbsp;·&nbsp; S — счёт &nbsp;·&nbsp; F — полный экран &nbsp;·&nbsp; H — спрятать панель</p>
+    </div>`;
+  },
+  intro(s) {
+    const r = QUIZ.rounds[s.ri];
+    const n = r.items.length, nm = r.items.filter(q => !q.text).length, bonus = n - nm;
+    const unit = r.type === "yesno" ? `${r.items[0].cards.length} фото` : r.type === "matching" ? `${n} ${plural(n, "таблица", "таблицы", "таблиц")}` : r.type === "audio" ? `${nm} ${plural(nm, "фрагмент", "фрагмента", "фрагментов")}${bonus ? " + бонус" : ""}` : `${n} ${plural(n, "вопрос", "вопроса", "вопросов")}`;
+    stage.innerHTML = `<div class="slide intro">
+      <div class="num">${esc(r.label)}</div>
+      <h2>${esc(r.name)}</h2>
+      <div class="rules">${r.rules.map(x => `<p>${x}</p>`).join("")}</div>
+      <div class="meta"><span class="chip">${unit}</span><span class="chip">${esc(ptsLabel(r))}</span><span class="chip">⏱ ${r.timer} сек</span></div>
+    </div>`;
+  },
+  question(s) {
+    const r = QUIZ.rounds[s.ri], q = r.items[s.qi], key = mkey(s.ri, s.qi);
+    stage.innerHTML = `<div class="slide">${head(r, s)}
+      <div class="qwrap"><div class="qmain">
+        <div class="qmedia" id="qmedia">${r.noIcons ? "" : `<span class="emoji">${q.icon || "🎃"}</span>`}</div>
+        <div class="qtext">${esc(q.text)}${q.hint ? `<span class="hint">${esc(q.hint)}</span>` : ""}</div>
+        <div class="hosttools"><button class="mini" id="addImg">🖼 картинка к вопросу</button><button class="mini" id="rmImg" hidden>убрать картинку</button></div>
+      </div>${Timer.html()}</div>${answerBox(q)}</div>`;
+    Timer.mount(r.timer);
+    $("#addImg").onclick = () => pickFile(key, "image/*");
+    $("#rmImg").onclick = async () => { await removeMedia(key); render(); };
+    loadImage(key, q.img, q.icon);
+  },
+  emoji(s) {
+    const r = QUIZ.rounds[s.ri], q = r.items[s.qi];
+    stage.innerHTML = `<div class="slide">${head(r, s)}
+      <div class="qwrap"><div class="qmain" style="align-items:center">
+        <div class="big-emoji">${q.emoji}</div>
+        <div class="qtext" style="text-align:center;color:var(--muted)">Какой фильм зашифрован?</div>
+      </div>${Timer.html()}</div>${answerBox(q)}</div>`;
+    Timer.mount(r.timer);
+  },
+  logic(s) {
+    const r = QUIZ.rounds[s.ri], q = r.items[s.qi];
+    const tiles = q.tiles.map((t, ti) => `<div class="tile" data-key="${mkey(s.ri, s.qi)}-t${ti}" style="animation-delay:${ti * .15}s">
+        <span class="te" style="${t.rot ? `transform:rotate(${t.rot}deg)` : ""}">${t.e}</span>
+        <button class="mini tup" data-tile="${ti}">🖼 картинка</button></div>`).join(`<span class="plus">+</span>`);
+    stage.innerHTML = `<div class="slide">${head(r, s)}
+      <div class="qwrap"><div class="qmain" style="align-items:center">
+        <div class="tiles">${tiles}</div>
+        <div class="qtext" style="text-align:center;color:var(--muted)">Кто этот злодей?</div>
+      </div>${Timer.html()}</div>${answerBox(q)}</div>`;
+    Timer.mount(r.timer);
+    $$(".tile").forEach(async el => {
+      const key = el.dataset.key;
+      $(".tup", el).onclick = e => { e.stopPropagation(); pickFile(key, "image/*"); };
+      const url = await mediaURL(key) || q.tiles[+$(".tup", el).dataset.tile].img;
+      if (!url) return;
+      const img = new Image();
+      img.onload = () => { $(".te", el)?.remove(); $(".tc", el)?.remove(); el.prepend(img); };
+      img.src = url;
+    });
+  },
+  yesno(s) {
+    const r = QUIZ.rounds[s.ri], set = r.items[s.qi];
+    const cards = set.cards.map((c, i) => `<div class="pcard hasimg" style="animation-delay:${i * .05}s">
+        <div class="pimg">${c.img ? `<img src="${esc(c.img)}" alt="">` : `<span class="pe">🧛</span>`}</div>
+        <div class="pcap"><span class="k">${i + 1}</span></div>
+        <div class="ma ${c.yes === false ? "no" : ""}" style="animation-delay:${i * .1}s">${c.name ? `<span style="color:#fff">${esc(c.name)}: </span>` : ""}${c.yes === true ? "Да" : c.yes === false ? "Нет" : "ответ не задан"}${c.note ? ` · ${esc(c.note)}` : ""}</div>
+      </div>`).join("");
+    stage.innerHTML = `<div class="slide ${state.shown[state.i] ? "revealed" : ""}" id="mslide">${head(r, s)}
+      <h2 class="mtitle">🧛 ${esc(set.title)}</h2>
+      <div class="mgrid yn"><div class="pgrid g4" style="--cols:${set.cards.length > 8 ? 5 : 4}">${cards}</div>${Timer.html()}</div></div>`;
+    Timer.mount(r.timer);
+  },
+  matching(s) {
+    const r = QUIZ.rounds[s.ri], set = r.items[s.qi], n = set.pairs.length;
+    const order = matchOrder(s.ri, s.qi, n);
+    const letterOf = p => LETTERS[order.indexOf(p)];
+    const left = set.noPics
+      ? `<ol class="mcol">${set.pairs.map((p, i) => `<li><span class="k">${i + 1}</span><span>${esc(p[0])}</span><span class="ma" style="animation-delay:${i * .12}s">${letterOf(i)} · ${esc(p[1])}</span></li>`).join("")}</ol>`
+      : `<div class="pgrid">${set.pairs.map((p, i) => `<div class="pcard" data-key="${mkey(s.ri, s.qi)}-p${i}" style="animation-delay:${i * .06}s">
+        <div class="pimg"><span class="pe">${p[3] || set.icon || "🎃"}</span></div>
+        <div class="pcap"><span class="k">${i + 1}</span><span class="t">${esc(p[0])}</span></div>
+        <div class="ma" style="animation-delay:${i * .12}s">${p[0] !== p[1] ? `<span class="mn">${esc(p[0])}: </span>` : ""}${letterOf(i)} · ${esc(p[1])}</div>
+        <div class="ptools"><a class="mini" href="${imgSearch(p[0] + " " + p[1])}" target="_blank" rel="noopener" title="Найти картинку (только для ведущего)">🔎</a><button class="mini" data-pick title="Загрузить картинку">🖼</button></div>
+      </div>`).join("")}</div>`;
+    const right = order.map((p, k) => `<li><span class="k">${LETTERS[k]}</span><span>${esc(set.pairs[p][1])} <span class="y">${esc(set.pairs[p][2] || "")}</span></span></li>`).join("");
+    stage.innerHTML = `<div class="slide ${state.shown[state.i] ? "revealed" : ""}" id="mslide">${head(r, s)}
+      <h2 class="mtitle">${set.icon || ""} ${esc(set.title)}</h2>
+      <div class="mgrid"><div style="align-self:${set.noPics ? "center" : "stretch"};min-height:0;display:grid">${left}</div><ol class="mcol r">${right}</ol>${Timer.html()}</div></div>`;
+    Timer.mount(r.timer);
+    $$(".pcard").forEach(async el => {
+      const key = el.dataset.key;
+      $("[data-pick]", el).onclick = e => { e.stopPropagation(); pickFile(key, "image/*"); };
+      const pair = set.pairs[+key.split("-p").pop()];
+      const url = await mediaURL(key) || pair[4];
+      if (!url) return;
+      const img = new Image();
+      if (pair[5] === "contain") { img.style.objectFit = "contain"; img.style.background = "#fff"; }
+      img.onload = () => { const box = $(".pimg", el); box.innerHTML = ""; box.appendChild(img); el.classList.add("hasimg"); };
+      img.src = url;
+    });
+  },
+  audio(s) {
+    const r = QUIZ.rounds[s.ri], q = r.items[s.qi], key = mkey(s.ri, s.qi);
+    const bars = Array.from({ length: 28 }, (_, i) => `<i style="--h:${30 + Math.round(Math.abs(Math.sin(i * 1.7)) * 70)}%;--d:${(.35 + (i % 5) * .09).toFixed(2)}s"></i>`).join("");
+    stage.innerHTML = `<div class="slide">${head(r, s)}
+      <div class="aud"><div class="player" id="player">
+        <div class="tracknum">${r.type === "audio" && s.ri === 2 ? "♪" : "🔊"} ${s.qi + 1}</div>
+        <div class="eq">${bars}</div>
+        <div id="pslot"></div>
+      </div>${Timer.html()}</div>${answerBox(q)}</div>`;
+    Timer.mount(r.timer);
+    loadAudio(s, q, key);
+  },
+  answers(s) {
+    const r = QUIZ.rounds[s.ri];
+    const rows = r.type === "matching"
+      ? r.items.map((set, qi) => { const o = matchOrder(s.ri, qi, set.pairs.length); return `<div class="arow"><span class="k">${qi + 1}</span><span><b>${esc(set.title)}</b><span class="v" style="display:block;margin-top:4px">${set.pairs.map((p, i) => `${i + 1}-${LETTERS[o.indexOf(i)]}`).join(", ")}</span></span></div>`; })
+      : r.items.map((q, qi) => `<div class="arow"><span class="k">${qi + 1}</span><span><span class="v">${esc(q.answer)}</span>${r.type === "emoji" ? `<span class="s">${q.emoji}</span>` : ""}</span></div>`);
+    stage.innerHTML = `<div class="slide"><div class="head"><span class="chip hot">${esc(r.label)} · ${esc(r.name)}</span><span class="chip">Ответы раунда</span><span class="chip" style="opacity:.7">Enter — открыть / скрыть</span></div>
+      <div class="alist ${state.shown[state.i] ? "" : "hidden"}" id="alist">${rows.join("")}</div></div>`;
+  },
+  scores() {
+    const teams = Scores.totals().sort((a, b) => b.total - a.total);
+    const max = Math.max(1, ...teams.map(t => t.total));
+    stage.innerHTML = `<div class="slide" style="align-items:center"><h2 class="display" style="font-size:clamp(48px,7vw,110px);color:var(--orange);margin-bottom:clamp(14px,3vh,30px)">Итоги</h2>
+      ${teams.length ? `<div class="rank">${teams.map((t, i) => `<div class="rk" style="animation:in .4s ${i * .08}s both"><span class="p">${i + 1}</span><span class="nm">${esc(t.name || "Команда")}</span><span class="bar" style="width:${t.total / max * 100}%;animation-delay:${.2 + i * .08}s"></span><span class="v">${t.total}</span></div>`).join("")}</div>`
+        : `<p style="color:var(--muted);font-size:20px">Команд пока нет — откройте «Счёт» (S) и добавьте их.</p>`}
+    </div>`;
+  }
+};
+
+async function loadImage(key, src, icon) {
+  const slot = $("#qmedia"); if (!slot) return;
+  const url = await mediaURL(key) || src;
+  if (!url || !$("#qmedia")) return;
+  const img = new Image();
+  img.onload = () => { slot.innerHTML = ""; slot.appendChild(img); const rm = $("#rmImg"); if (rm && urlCache.has(key)) rm.hidden = false; };
+  img.src = url;
+}
+async function loadAudio(s, q, key) {
+  const idx = state.i;
+  const url = await mediaURL(key) || q.src;
+  if (state.i !== idx) return;
+  curAudio = { q, ok: false };
+  const slot = $("#pslot");
+  const ytHref = `https://www.youtube.com/results?search_query=${encodeURIComponent(q.search || "")}`;
+  const empty = () => {
+    slot.innerHTML = `<div class="drop" id="drop"><b>Файла пока нет</b><br>Перетащите аудио на слайд или нажмите, чтобы выбрать.<br>
+      <span style="font-size:.85em">Либо положите файл рядом с квизом: <code>${esc(q.src || "")}</code></span></div>
+      <div class="hosttools" style="justify-content:center;margin-top:10px;opacity:.7"><a class="mini" href="${ytHref}" target="_blank" rel="noopener">🔎 найти на YouTube (только для ведущего)</a></div>`;
+    $("#drop").onclick = () => pickFile(key, "audio/*");
+    updateFooter();
+  };
+  if (!url) return empty();
+  player.src = url;
+  player.onerror = () => { if (curAudio && curAudio.q === q) { curAudio.ok = false; empty(); } };
+  player.oncanplay = () => {
+    if (!curAudio || curAudio.q !== q || curAudio.ok) return;
+    curAudio.ok = true;
+    if (q.start) player.currentTime = q.start;
+    slot.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+      <div class="pctrl"><button class="pbtn sm" id="prew" title="С начала">↺</button><button class="pbtn" id="pplay">▶</button></div>
+      <div class="pbar"><b></b></div>
+      <div class="hosttools" style="justify-content:center"><button class="mini" id="prepl">заменить файл</button>${urlCache.has(key) ? `<button class="mini" id="prm">убрать</button>` : ""}</div></div>`;
+    $("#pplay").onclick = playToggle; $("#prew").onclick = restartAudio;
+    $("#prepl").onclick = () => pickFile(key, "audio/*");
+    if ($("#prm")) $("#prm").onclick = async () => { await removeMedia(key); render(); };
+    updateFooter();
+  };
+}
+
+/* ---------- Файлы ---------- */
+const picker = $("#filePick");
+let pickKey = null;
+function pickFile(key, accept) { pickKey = key; picker.accept = accept; picker.value = ""; picker.click(); }
+picker.onchange = async () => {
+  const f = picker.files[0]; if (!f || !pickKey) return;
+  await saveMedia(pickKey, f); pickKey = null;
+  if ($("#ovMenu").classList.contains("open")) renderMenu("media");
+  render();
+};
+function slideMediaKey(target) {
+  const s = slides[state.i];
+  if (s.kind === "logic" || s.kind === "matching") { const t = target && target.closest && target.closest(".tile,.pcard"); return t ? { key: t.dataset.key, type: "image" } : null; }
+  if (s.kind === "audio") return { key: mkey(s.ri, s.qi), type: "audio" };
+  if (s.kind === "question") return { key: mkey(s.ri, s.qi), type: "image" };
+  return null;
+}
+let dragDepth = 0;
+addEventListener("dragenter", e => {
+  if (!e.dataTransfer.types.includes("Files")) return;
+  const k = slides[state.i].kind, cards = k === "logic" || k === "matching";
+  if (!cards && !slideMediaKey()) return;
+  dragDepth++; document.body.classList.add(cards ? "dragcards" : "dragging");
+});
+addEventListener("dragleave", () => { if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove("dragging", "dragcards"); } });
+addEventListener("dragover", e => {
+  e.preventDefault();
+  $$(".over").forEach(t => t.classList.remove("over"));
+  e.target.closest?.(".tile,.pcard")?.classList.add("over");
+});
+addEventListener("drop", async e => {
+  e.preventDefault(); dragDepth = 0; document.body.classList.remove("dragging", "dragcards");
+  $$(".over").forEach(t => t.classList.remove("over"));
+  const m = slideMediaKey(e.target), f = e.dataTransfer.files[0];
+  if (!m || !f) return;
+  if (!f.type.startsWith(m.type + "/")) { alert(m.type === "audio" ? "Сюда нужен аудиофайл (mp3, m4a, ogg, wav)." : "Сюда нужна картинка."); return; }
+  await saveMedia(m.key, f); render();
+});
+
+/* ---------- Счёт ---------- */
+const Scores = {
+  data: store.get("hq-scores", { teams: [] }),
+  save() { store.set("hq-scores", this.data); },
+  totals() { return this.data.teams.map(t => ({ name: t.name, total: QUIZ.rounds.reduce((a, _, ri) => a + (Number(t.pts[rid(ri)]) || 0), 0) })); },
+  render() {
+    const tb = $("#scoreTable");
+    tb.innerHTML = `<tr><th>Команда</th>${QUIZ.rounds.map(r => `<th title="${esc(r.name)}">${esc(r.label.replace("Раунд ", "Р"))}</th>`).join("")}<th>Всего</th><th></th></tr>` +
+      this.data.teams.map((t, ti) => `<tr><td><input class="name" data-t="${ti}" data-f="name" value="${esc(t.name)}" placeholder="Название"></td>
+        ${QUIZ.rounds.map((_, ri) => `<td><input type="number" inputmode="numeric" data-t="${ti}" data-r="${rid(ri)}" value="${t.pts[rid(ri)] ?? ""}"></td>`).join("")}
+        <td class="tot" id="tot${ti}">${this.totals()[ti].total}</td><td><button class="del" data-del="${ti}" title="Удалить">×</button></td></tr>`).join("") +
+      (this.data.teams.length ? "" : `<tr><td colspan="${QUIZ.rounds.length + 3}" style="color:var(--muted);padding:18px;text-align:left">Добавьте команды кнопкой «＋ Команда».</td></tr>`);
+  }
+};
+$("#scoreTable").addEventListener("input", e => {
+  const el = e.target, t = Scores.data.teams[el.dataset.t]; if (!t) return;
+  if (el.dataset.f === "name") t.name = el.value; else t.pts[el.dataset.r] = el.value === "" ? "" : Number(el.value);
+  Scores.save(); $("#tot" + el.dataset.t).textContent = Scores.totals()[el.dataset.t].total;
+  if (slides[state.i].kind === "scores") R.scores();
+});
+$("#scoreTable").addEventListener("click", e => {
+  const d = e.target.dataset.del; if (d == null) return;
+  if (!confirm(`Удалить команду «${Scores.data.teams[d].name || "без названия"}»?`)) return;
+  Scores.data.teams.splice(d, 1); Scores.save(); Scores.render(); if (slides[state.i].kind === "scores") R.scores();
+});
+$("#addTeam").onclick = () => { Scores.data.teams.push({ name: `Команда ${Scores.data.teams.length + 1}`, pts: {} }); Scores.save(); Scores.render(); const ins = $$("#scoreTable input.name"); ins[ins.length - 1]?.select(); };
+$("#resetScores").onclick = () => { if (!confirm("Обнулить баллы всех команд? Названия останутся.")) return; Scores.data.teams.forEach(t => t.pts = {}); Scores.save(); Scores.render(); if (slides[state.i].kind === "scores") R.scores(); };
+
+/* ---------- Меню ---------- */
+let menuTab = "slides";
+async function renderMenu(tab = menuTab) {
+  menuTab = tab;
+  $$("#ovMenu .tab").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
+  const body = $("#menuBody");
+  if (tab === "slides") {
+    const groups = [{ name: "Начало", items: [] }];
+    slides.forEach((s, i) => {
+      if (s.kind === "intro") groups.push({ name: `${QUIZ.rounds[s.ri].label} · ${QUIZ.rounds[s.ri].name}`, items: [] });
+      if (s.kind === "scores") groups.push({ name: "Конец", items: [] });
+      groups[groups.length - 1].items.push([i, s.kind === "intro" ? "Правила" : s.title]);
+    });
+    body.innerHTML = groups.map(g => `<div class="mgroup"><h4>${esc(g.name)}</h4><div class="mlinks">${g.items.map(([i, t]) => `<button data-go="${i}" class="${i === state.i ? "cur" : ""}">${esc(t)}</button>`).join("")}</div></div>`).join("");
+  } else {
+    const keys = new Set(await DB.keys());
+    let rows = "";
+    QUIZ.rounds.forEach((r, ri) => {
+      if (r.type === "matching") {
+        rows += `<tr><td colspan="4" style="padding-top:16px;color:var(--orange2);font-size:12px;letter-spacing:.14em;text-transform:uppercase">${esc(r.label)} · ${esc(r.name)} (картинки к левому столбцу)</td></tr>`;
+        r.items.forEach((set, qi) => {
+          if (set.noPics) return;
+          rows += `<tr><td style="width:2.5em;color:var(--muted)">${qi + 1}</td><td>${esc(set.title)}</td><td colspan="2" style="text-align:right">${set.pairs.map((p, pi) => {
+            const k = `${mkey(ri, qi)}-p${pi}`, has = keys.has(k);
+            return `<span style="white-space:nowrap"><button class="mini" data-up="${k}" data-acc="image/*" title="${p[4] ? "из папки: " + esc(p[4]) : ""}">${has || p[4] ? "✓ " : ""}${pi + 1}. ${esc(p[0])}</button><a class="mini" target="_blank" rel="noopener" href="${imgSearch(p[0] + " " + p[1])}">🔎</a>${has ? `<button class="mini" data-rm="${k}">×</button>` : ""}</span>`;
+          }).join(" ")}</td></tr>`;
+        });
+        return;
+      }
+      if (r.type === "logic") {
+        rows += `<tr><td colspan="4" style="padding-top:16px;color:var(--orange2);font-size:12px;letter-spacing:.14em;text-transform:uppercase">${esc(r.label)} · ${esc(r.name)} (картинки вместо эмодзи — по желанию)</td></tr>`;
+        r.items.forEach((q, qi) => {
+          rows += `<tr><td style="width:2.5em;color:var(--muted)">${qi + 1}</td><td>${esc(q.answer)}</td><td colspan="2" style="text-align:right">${q.tiles.map((t, ti) => {
+            const k = `${mkey(ri, qi)}-t${ti}`, has = keys.has(k);
+            return `<button class="mini" data-up="${k}" data-acc="image/*" title="${esc(t.c)}">${has ? "✓ " : ""}${t.e} ${esc(t.c)}</button>${has ? `<button class="mini" data-rm="${k}">×</button>` : ""}`;
+          }).join(" ")}</td></tr>`;
+        });
+        return;
+      }
+      if (r.type !== "audio" && r.type !== "question") return;
+      rows += `<tr><td colspan="4" style="padding-top:16px;color:var(--orange2);font-size:12px;letter-spacing:.14em;text-transform:uppercase">${esc(r.label)} · ${esc(r.name)} ${r.type === "question" ? "(картинки — по желанию)" : ""}</td></tr>`;
+      r.items.forEach((q, qi) => {
+        if (q.text && r.type === "audio") return;
+        const k = mkey(ri, qi), has = keys.has(k), isA = r.type === "audio";
+        rows += `<tr><td style="width:2.5em;color:var(--muted)">${qi + 1}</td><td>${esc(q.answer)}</td>
+          <td class="st">${has ? `<span class="ok">✓ загружен</span>` : `<span class="miss">${isA ? "из папки: " + esc(q.src) : q.img ? esc(q.img) : "—"}</span>`}</td>
+          <td class="st" style="text-align:right"><button class="mini" data-up="${k}" data-acc="${isA ? "audio/*" : "image/*"}">${has ? "заменить" : "загрузить"}</button>
+          ${has ? `<button class="mini" data-rm="${k}">убрать</button>` : ""}
+          ${isA ? `<a class="mini" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(q.search || "")}">🔎</a>` : ""}</td></tr>`;
+      });
+    });
+    body.innerHTML = `<div class="warnbox">Здесь видны ответы — не показывайте это окно на проекторе. Загруженные файлы хранятся в этом браузере и переживут перезагрузку страницы. Альтернатива — положить файлы в папку <code>audio/</code> рядом с квизом под указанными именами.</div>
+      <table class="mtable">${rows}</table>`;
+  }
+}
+$("#menuBody").addEventListener("click", async e => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.go != null) { go(+t.dataset.go); closeOv(); }
+  if (t.dataset.up) pickFile(t.dataset.up, t.dataset.acc);
+  if (t.dataset.rm) { await removeMedia(t.dataset.rm); renderMenu("media"); render(); }
+});
+$$("#ovMenu .tab").forEach(b => b.onclick = () => renderMenu(b.dataset.tab));
+function openOv(id) { closeOv(); $(id).classList.add("open"); if (id === "#ovMenu") renderMenu(); else Scores.render(); }
+function closeOv() { $$(".ov").forEach(o => o.classList.remove("open")); }
+$$("[data-close]").forEach(b => b.onclick = closeOv);
+$$(".ov").forEach(o => o.addEventListener("click", e => { if (e.target === o) closeOv(); }));
+
+/* ---------- Навигация ---------- */
+function render() {
+  Timer.stop(); stopAudio();
+  const s = slides[state.i];
+  R[s.kind](s);
+  store.set("hq-pos", state.i);
+  updateFooter();
+}
+function go(i) { state.i = Math.max(0, Math.min(slides.length - 1, i)); render(); }
+function toggleAnswer() {
+  const s = slides[state.i]; if (!hasAnswer(s)) return;
+  state.shown[state.i] = !state.shown[state.i];
+  const on = state.shown[state.i];
+  if (s.kind === "matching" || s.kind === "yesno") $("#mslide").classList.toggle("revealed", on);
+  else if (s.kind === "answers") $("#alist").classList.toggle("hidden", !on);
+  else $("#ans").classList.toggle("show", on);
+  updateFooter();
+}
+function updateFooter() {
+  const s = slides[state.i]; if (!s) return;
+  $("#pos").textContent = `${state.i + 1} / ${slides.length}`;
+  $("#bPrev").disabled = state.i === 0;
+  $("#bNext").disabled = state.i === slides.length - 1;
+  const bt = $("#bTimer");
+  bt.disabled = !hasTimer(s);
+  bt.firstChild.textContent = !Timer.el ? "⏱ Таймер " : Timer.left <= 0 ? "↺ Заново " : Timer.running ? "❚❚ Пауза " : Timer.left < Timer.total ? "▶ Дальше " : "⏱ Старт ";
+  $("#bPlay").style.display = s.kind === "audio" ? "" : "none";
+  $("#bPlay").disabled = !(curAudio && curAudio.ok);
+  $("#bPlay").firstChild.textContent = player.paused ? "▶ Звук " : "❚❚ Звук ";
+  $("#bAns").disabled = !hasAnswer(s);
+  $("#bAns").firstChild.textContent = state.shown[state.i] ? "🙈 Скрыть " : "👁 Ответ ";
+}
+$("#bPrev").onclick = () => go(state.i - 1);
+$("#bNext").onclick = () => go(state.i + 1);
+$("#bTimer").onclick = () => Timer.toggle();
+$("#bPlay").onclick = playToggle;
+$("#bAns").onclick = toggleAnswer;
+$("#bMenu").onclick = () => openOv("#ovMenu");
+$("#bScore").onclick = () => openOv("#ovScore");
+$("#bFull").onclick = toggleFull;
+function toggleFull() { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.().catch(() => {}); }
+
+addEventListener("keydown", e => {
+  if (e.target.closest("input,textarea") || e.metaKey || e.ctrlKey || e.altKey) return;
+  const anyOv = $(".ov.open");
+  const k = e.key.toLowerCase(), code = e.code;
+  if (k === "escape") { closeOv(); return; }
+  if (code === "KeyM") { e.preventDefault(); anyOv && menuTab && $("#ovMenu").classList.contains("open") ? closeOv() : openOv("#ovMenu"); return; }
+  if (code === "KeyS") { e.preventDefault(); $("#ovScore").classList.contains("open") ? closeOv() : openOv("#ovScore"); return; }
+  if (anyOv) return;
+  if (["arrowright", "pagedown"].includes(k)) { e.preventDefault(); go(state.i + 1); }
+  else if (["arrowleft", "pageup"].includes(k)) { e.preventDefault(); go(state.i - 1); }
+  else if (k === " ") { e.preventDefault(); Timer.toggle(); }
+  else if (k === "enter" || code === "KeyA") { e.preventDefault(); toggleAnswer(); }
+  else if (code === "KeyP") { e.preventDefault(); playToggle(); }
+  else if (code === "KeyR") { e.preventDefault(); Timer.el && Timer.reset(); }
+  else if (code === "KeyF") toggleFull();
+  else if (code === "KeyH") $("#foot").classList.toggle("hide");
+  else if (k === "home") go(0);
+  else if (k === "end") go(slides.length - 1);
+});
+
+render();
+</script>
+</body>
+</html>
